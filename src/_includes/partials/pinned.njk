@@ -1,0 +1,47 @@
+{# Expects: pinnedPost (collection item) #}
+{% if pinnedPost %}
+<section class="mb-10">
+  <article class="feature-panel card-surface p-6 sm:p-8">
+    {% set catData = pinnedPost.data.category | getCategoryData %}
+    <div class="feature-layout{% if pinnedPost.data.cover %} feature-layout-cover{% endif %}">
+      <div class="space-y-4 sm:space-y-5">
+        <p class="eyebrow">In evidenza</p>
+
+        <div class="card-meta">
+          {% if catData %}
+            <a href="/{{ catData.slug }}/" class="meta-link">{{ catData.name }}</a>
+            <span class="meta-dot">&middot;</span>
+          {% endif %}
+          <time datetime="{{ pinnedPost.date | isoDate }}">{{ pinnedPost.date | readableDate }}</time>
+          <span class="meta-dot" aria-hidden="true">&middot;</span>
+          <span>{{ pinnedPost.templateContent | readingTime }}</span>
+        </div>
+
+        <h2 class="display-title text-3xl sm:text-4xl lg:text-5xl text-text-strong">
+          <a href="{{ pinnedPost.url }}" class="story-link card-link">{{ pinnedPost.data.title }}</a>
+        </h2>
+
+        <p class="lead-text max-w-3xl text-text-soft">{{ pinnedPost.data.description }}</p>
+
+        {% if pinnedPost.data.tags | length > 1 %}
+          <div class="flex flex-wrap gap-x-3 gap-y-1">
+          {% for tag in pinnedPost.data.tags %}
+            {% if tag !== "post" %}
+              <a href="{{ tag | topicUrl(pinnedPost.data.category) }}" class="topic-label">#{{ tag }}</a>
+            {% endif %}
+          {% endfor %}
+          </div>
+        {% endif %}
+
+        <span class="button-link inline-flex" aria-hidden="true">Leggi l'articolo</span>
+      </div>
+
+      {% if pinnedPost.data.cover %}
+      <div class="feature-media">
+        {% image pinnedPost.data.cover, "", "header", true %}
+      </div>
+      {% endif %}
+    </div>
+  </article>
+</section>
+{% endif %}

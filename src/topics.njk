@@ -1,0 +1,67 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: collections.topicPages
+  size: 1
+  alias: topicPage
+permalink: "{{ topicPage.topic.url }}{% if topicPage.pageIndex > 0 %}page/{{ topicPage.pageIndex + 1 }}/{% endif %}"
+eleventyComputed:
+  title: "#{{ topicPage.topic.name }} · {{ topicPage.category.name }}{% if topicPage.pageIndex > 0 %} - pagina {{ topicPage.pageIndex + 1 }}{% endif %}"
+  description: "Articoli sul topic {{ topicPage.topic.name }} nella sezione {{ topicPage.category.name }}."
+  categorySlug: "{{ topicPage.category.slug }}"
+  categoryName: "{{ topicPage.category.name }}"
+---
+
+{% if topicPage.pageIndex == 0 %}
+  <nav class="breadcrumb mb-5" aria-label="Percorso">
+    <a href="/">Home</a><span aria-hidden="true">/</span>
+    <a href="/{{ topicPage.category.slug }}/">{{ topicPage.category.name }}</a><span aria-hidden="true">/</span>
+    <span>#{{ topicPage.topic.name }}</span>
+  </nav>
+  {% set heroTitle = "#" + topicPage.topic.name %}
+  {% set heroDescription = "Articoli sul topic " + topicPage.topic.name + " nella sezione " + topicPage.category.name + "." %}
+  {% set heroEyebrow = "Topic / " + topicPage.category.name %}
+  {% set heroCategory = topicPage.category %}
+  {% include "partials/hero.njk" %}
+
+  {% set topicsCategory = topicPage.category %}
+  {% set activeTopic = topicPage.topic.name %}
+  {% include "partials/topics.njk" %}
+
+  {% set pinnedPost = topicPage.pinnedPost %}
+  {% include "partials/pinned.njk" %}
+{% endif %}
+
+{% if topicPage.posts | length or not topicPage.pinnedPost %}
+<section class="archive-section">
+  <div class="archive-heading">
+    <div>
+      <p class="eyebrow">Archivio{% if topicPage.pageIndex > 0 %} / pagina {{ topicPage.pageIndex + 1 }}{% endif %}</p>
+      {% if topicPage.pageIndex == 0 %}<h2 class="section-title">Note su {{ topicPage.topic.name }}</h2>
+      {% else %}<h1 class="section-title">Note su {{ topicPage.topic.name }}</h1>{% endif %}
+    </div>
+    <span class="meta-line">{{ topicPage.totalPosts }} {% if topicPage.totalPosts == 1 %}articolo{% else %}articoli{% endif %}</span>
+  </div>
+  {% if topicPage.totalPosts == 0 %}
+    <div class="empty-panel border border-border p-6 sm:p-8">
+      <p class="quiet-note">Non ci sono ancora articoli pubblicati su questo topic. Puoi esplorare gli altri topic o tornare alla sezione <a href="/{{ topicPage.category.slug }}/" class="text-link">{{ topicPage.category.name }}</a>.</p>
+    </div>
+  {% else %}
+    {% set cardHeadingLevel = 3 %}
+    {% if topicPage.pageIndex > 0 %}{% set cardHeadingLevel = 2 %}{% endif %}
+    <div class="story-list">
+      {% for post in topicPage.posts %}{% postCard post, cardHeadingLevel %}{% endfor %}
+    </div>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if topicPage.totalPages > 1 %}
+<nav class="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" aria-label="Paginazione">
+  <span class="meta-line">Pagina {{ topicPage.pageIndex + 1 }} di {{ topicPage.totalPages }}</span>
+  <div class="flex flex-wrap gap-3">
+    {% if topicPage.pageIndex > 0 %}<a href="{{ topicPage.topic.url }}{% if topicPage.pageIndex > 1 %}page/{{ topicPage.pageIndex }}/{% endif %}" class="pager-link">&larr; Precedente</a>{% endif %}
+    {% if topicPage.pageIndex < topicPage.totalPages - 1 %}<a href="{{ topicPage.topic.url }}page/{{ topicPage.pageIndex + 2 }}/" class="pager-link">Successiva &rarr;</a>{% endif %}
+  </div>
+</nav>
+{% endif %}

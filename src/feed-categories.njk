@@ -1,0 +1,33 @@
+---
+pagination:
+  data: settings.categories
+  size: 1
+  alias: feedCategory
+permalink: "/{{ feedCategory.slug }}/feed.xml"
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>{{ (settings.site.title + " — " + feedCategory.name) | htmlToAbsoluteUrls(settings.site.url) }}</title>
+  <subtitle>{{ feedCategory.description | htmlToAbsoluteUrls(settings.site.url) }}</subtitle>
+  <link href="{{ settings.site.url }}/{{ feedCategory.slug }}/feed.xml" rel="self"/>
+  <link href="{{ settings.site.url }}/{{ feedCategory.slug }}/"/>
+  <id>{{ settings.site.url }}/{{ feedCategory.slug }}/</id>
+  {% set catPosts = collections.postsByCategory[feedCategory.slug] %}
+  {% set feedUpdated = catPosts | latestUpdated %}
+  <updated>{{ (feedUpdated or settings.site.feedFallbackDate) | isoDate }}</updated>
+  <author>
+    <name>{{ settings.site.author.name }}</name>
+  </author>
+  {% set feedPosts = catPosts | sortByUpdated %}
+  {% for post in feedPosts | limit(settings.site.feedSize) %}
+  <entry>
+    <title>{{ post.data.title | htmlToAbsoluteUrls(settings.site.url) }}</title>
+    <link href="{{ settings.site.url }}{{ post.url }}"/>
+    <id>{{ settings.site.url }}{{ post.url }}</id>
+    <updated>{{ post.date | effectiveDate(post.data.updated, post.data.lastVerified) | isoDate }}</updated>
+    <category term="{{ post.data.category }}"/>
+    <summary>{{ post.data.description | htmlToAbsoluteUrls(settings.site.url) }}</summary>
+  </entry>
+  {% endfor %}
+</feed>

@@ -1,0 +1,78 @@
+---
+layout: layouts/base.njk
+pagination:
+  data: collections.categoryPages
+  size: 1
+  alias: categoryPage
+permalink: "{% if categoryPage.pageIndex == 0 %}/{{ categoryPage.category.slug }}/{% else %}/{{ categoryPage.category.slug }}/page/{{ categoryPage.pageIndex + 1 }}/{% endif %}"
+eleventyComputed:
+  title: "{% if categoryPage.pageIndex == 0 %}{{ categoryPage.category.name }}{% else %}{{ categoryPage.category.name }} - pagina {{ categoryPage.pageIndex + 1 }}{% endif %}"
+  description: "{{ categoryPage.category.description }}"
+  categorySlug: "{{ categoryPage.category.slug }}"
+  categoryName: "{{ categoryPage.category.name }}"
+---
+
+{% if categoryPage.pageIndex == 0 %}
+  {% set heroTitle = categoryPage.category.name %}
+  {% set heroDescription = categoryPage.category.description %}
+  {% set heroEyebrow = "Sezione / " + categoryPage.category.slug %}
+  {% set heroCategory = categoryPage.category %}
+  {% include "partials/hero.njk" %}
+
+  {% set topicsCategory = categoryPage.category %}
+  {% include "partials/topics.njk" %}
+
+  {% set pinnedPost = categoryPage.pinnedPost %}
+  {% include "partials/pinned.njk" %}
+{% endif %}
+
+{% if categoryPage.posts | length or not categoryPage.pinnedPost %}
+<section class="archive-section">
+  <div class="archive-heading">
+    <div>
+      <p class="eyebrow">Archivio{% if categoryPage.pageIndex > 0 %} / pagina {{ categoryPage.pageIndex + 1 }}{% endif %}</p>
+      {% if categoryPage.pageIndex == 0 %}
+        <h2 class="section-title">{{ categoryPage.category.name }}</h2>
+      {% else %}
+        <h1 class="section-title">{{ categoryPage.category.name }}</h1>
+      {% endif %}
+    </div>
+    <div class="archive-stats">
+      <span class="meta-line">{{ categoryPage.totalPosts }} {% if categoryPage.totalPosts == 1 %}articolo{% else %}articoli{% endif %}</span>
+      <a href="/{{ categoryPage.category.slug }}/feed.xml" class="read-more">Feed Atom</a>
+    </div>
+  </div>
+
+  {% if categoryPage.posts | length == 0 and not categoryPage.pinnedPost %}
+    {% set emptyText = settings.site.emptyStateText %}
+    {% for cat in settings.categories %}
+      {% if cat.slug == categoryPage.category.slug and cat.emptyText %}
+        {% set emptyText = cat.emptyText %}
+      {% endif %}
+    {% endfor %}
+    {% include "partials/empty-state.njk" %}
+  {% else %}
+    {% set cardHeadingLevel = 3 %}
+    {% if categoryPage.pageIndex > 0 %}{% set cardHeadingLevel = 2 %}{% endif %}
+    <div class="story-list">
+      {% for post in categoryPage.posts %}
+        {% postCard post, cardHeadingLevel %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if categoryPage.totalPages > 1 %}
+<nav class="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" aria-label="Paginazione">
+  <span class="meta-line">Pagina {{ categoryPage.pageIndex + 1 }} di {{ categoryPage.totalPages }}</span>
+  <div class="flex flex-wrap gap-3">
+    {% if categoryPage.pageIndex > 0 %}
+      <a href="/{{ categoryPage.category.slug }}/{% if categoryPage.pageIndex > 1 %}page/{{ categoryPage.pageIndex }}/{% endif %}" class="pager-link">&larr; Precedente</a>
+    {% endif %}
+    {% if categoryPage.pageIndex < categoryPage.totalPages - 1 %}
+      <a href="/{{ categoryPage.category.slug }}/page/{{ categoryPage.pageIndex + 2 }}/" class="pager-link">Successiva &rarr;</a>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}

@@ -1,0 +1,38 @@
+{% set isArticle = layout == "layouts/post.njk" %}
+<title>{% if title %}{{ title }} | {% endif %}{{ settings.site.title }}</title>
+<meta name="description" content="{{ description or settings.site.description }}">
+<meta name="theme-color" content="#0d0c10">
+<link rel="canonical" href="{{ settings.site.url }}{{ page.url }}">
+
+{# Open Graph #}
+<meta property="og:title" content="{{ title or settings.site.title }}">
+<meta property="og:description" content="{{ description or settings.site.description }}">
+<meta property="og:url" content="{{ settings.site.url }}{{ page.url }}">
+<meta property="og:locale" content="{{ settings.site.locale or settings.site.language }}">
+<meta property="og:site_name" content="{{ settings.site.title }}">
+<meta property="og:type" content="{% if isArticle %}article{% else %}website{% endif %}">
+{% if ogImage %}
+  <meta property="og:image" content="{{ settings.site.url }}{{ ogImage }}">
+  {% if coverAlt %}<meta property="og:image:alt" content="{{ coverAlt }}">{% endif %}
+{% endif %}
+
+{% if isArticle and date %}
+  <meta property="article:published_time" content="{{ date | isoDate }}">
+{% endif %}
+{% if isArticle and (updated or lastVerified) %}
+  <meta property="article:modified_time" content="{{ date | effectiveDate(updated, lastVerified) | isoDate }}">
+{% endif %}
+{% if isArticle and category %}
+  <meta property="article:section" content="{{ category }}">
+{% endif %}
+
+{# Twitter Card #}
+{% if ogImage %}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{{ settings.site.url }}{{ ogImage }}">
+  {% if coverAlt %}<meta name="twitter:image:alt" content="{{ coverAlt }}">{% endif %}
+{% else %}
+  <meta name="twitter:card" content="summary">
+{% endif %}
+<meta name="twitter:title" content="{{ title or settings.site.title }}">
+<meta name="twitter:description" content="{{ description or settings.site.description }}">

@@ -1,0 +1,11 @@
+{% set categoryTopics = topicsCategory.slug | getCategoryTopics %}
+{% if categoryTopics | length %}
+<nav class="topic-directory mb-10" aria-label="Topic di {{ topicsCategory.name }}">
+  <p class="eyebrow">Esplora per topic</p>
+  <ul class="mt-4 flex flex-wrap gap-x-5 gap-y-3">
+    {% for topic in categoryTopics %}
+    <li><a href="{{ topic.url }}" class="topic-label"{% if activeTopic == topic.name %} aria-current="page"{% endif %}>#{{ topic.name }}</a></li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}

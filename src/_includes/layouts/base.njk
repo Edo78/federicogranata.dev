@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="{{ settings.site.language }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  {% include "partials/seo.njk" %}
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&display=swap" data-font-stylesheet>
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&display=swap"></noscript>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="alternate" type="application/atom+xml" title="{{ settings.site.title }}" href="/feed.xml">
+  {% if categorySlug %}
+  <link rel="alternate" type="application/atom+xml" title="{{ categoryName }}" href="/{{ categorySlug }}/feed.xml">
+  {% endif %}
+</head>
+<body class="bg-bg text-text min-h-screen flex flex-col antialiased">
+  {% set navigation = settings.categories | navigationItems %}
+  <a href="#main-content" class="skip-link">Vai al contenuto</a>
+
+  <header class="site-header">
+    <nav class="site-nav max-w-6xl mx-auto px-4" aria-label="Navigazione principale">
+      <a href="/" class="brand-link min-w-0">
+        <span class="meta-line">Federico &quot;Edo&quot; Granata</span>
+        <span class="brand-title display-title text-2xl sm:text-3xl text-text-strong">{{ settings.site.title }}</span>
+      </a>
+
+      <ul id="nav-menu" class="hidden lg:flex flex-wrap items-center justify-end gap-2">
+        {% for item in navigation %}
+        {% set navActive = page.url | isNavActive(item.url) %}
+        <li>
+          <a href="{{ item.url | safeUrl }}" class="nav-link{% if navActive %} nav-link-active{% endif %}" {% if navActive %}aria-current="page"{% endif %}>{{ item.label }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <details class="mobile-nav lg:hidden" data-mobile-nav>
+        <summary class="menu-button">
+          <span>Menu</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 7h16M4 12h16M4 17h16"/>
+          </svg>
+        </summary>
+        <ul class="mobile-menu surface-panel space-y-2 p-3">
+          {% for item in navigation %}
+          {% set navActive = page.url | isNavActive(item.url) %}
+          <li>
+            <a href="{{ item.url | safeUrl }}" class="nav-link block{% if navActive %} nav-link-active{% endif %}" {% if navActive %}aria-current="page"{% endif %}>{{ item.label }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </details>
+    </nav>
+  </header>
+
+  <main id="main-content" class="max-w-6xl mx-auto px-4 py-7 sm:py-9 lg:py-12 flex-1 w-full">
+    {{ content | safe }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="max-w-6xl mx-auto px-4 py-8 sm:py-10 flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+      <div class="space-y-3 max-w-2xl">
+        <p class="meta-line">Federico &quot;Edo&quot; Granata</p>
+        <p class="display-title text-xl sm:text-2xl text-text-strong">{{ settings.site.title }}</p>
+        <p class="text-sm leading-relaxed text-text-soft">{{ settings.site.description }}</p>
+        <p class="text-sm leading-relaxed text-text-soft">Aggiornamenti via <a href="/feed.xml" class="text-link">Atom</a>, senza algoritmi.</p>
+      </div>
+
+      <div class="flex flex-wrap gap-3 text-sm">
+        <a href="{{ settings.site.author.social.github | safeUrl }}" class="nav-link">GitHub</a>
+        <a href="{{ settings.site.author.social.mastodon | safeUrl }}" class="nav-link">Mastodon</a>
+        <a href="/about-me/" class="nav-link">Chi sono</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/site.js" defer></script>
+</body>
+</html>

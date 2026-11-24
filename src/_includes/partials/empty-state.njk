@@ -1,0 +1,10 @@
+{# Expects: emptyText (string) — testo descrittivo per home o categoria vuota. #}
+<div class="empty-panel surface-panel mx-auto mt-8 max-w-3xl p-6 sm:p-8 lg:p-10">
+  <p class="eyebrow">In sospeso</p>
+  {% if emptyText %}
+  <div class="prose prose-lg definition-prose mt-4 max-w-none text-text-soft">{{ emptyText | markdownify | safe }}</div>
+  {% else %}
+  <p class="text-sm leading-relaxed text-text-soft">I contenuti arriveranno qui a breve.</p>
+  {% endif %}
+  {% include "partials/author-sig.njk" %}
+</div>
