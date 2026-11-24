@@ -12,7 +12,7 @@ layout: layouts/base.njk
       {% if catData %}<a href="/{{ catData.slug }}/">{{ catData.name }}</a>{% else %}<span>Articolo</span>{% endif %}
     </nav>
 
-    <p class="eyebrow mt-6">{{ format | formatLabel }}{% if status %} / {{ status | statusLabel }}{% endif %}</p>
+    <p class="eyebrow mt-6">{{ format | formatLabel }}{% if status and status != "current" %} / {{ status | statusLabel }}{% endif %}</p>
     <h1 class="display-title mt-3 text-4xl sm:text-5xl lg:text-6xl text-text-strong">{{ title }}</h1>
     {% if description %}
       <p class="lead-text mt-5 max-w-3xl text-text-soft">{{ description }}</p>
@@ -58,7 +58,7 @@ layout: layouts/base.njk
     </aside>
   {% elseif status == "needs-review" %}
     <aside class="editorial-status mt-8" aria-label="Stato editoriale">
-      <span class="eyebrow">Da verificare</span>
+      <span class="eyebrow">Da rivedere</span>
       <p>Il contesto resta utile, ma strumenti e dettagli tecnici potrebbero essere cambiati dalla pubblicazione.</p>
     </aside>
   {% endif %}

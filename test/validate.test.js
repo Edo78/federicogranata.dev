@@ -78,6 +78,7 @@ test("post format, status and category topics are validated", () => {
   };
 
   assert.doesNotThrow(() => validatePost(basePost, categorySlugs, formatValues, categoryTopics));
+  assert.doesNotThrow(() => validatePost({ ...basePost, status: "current" }, categorySlugs, formatValues, categoryTopics));
   assert.throws(
     () => validatePost({ ...basePost, format: "unknown" }, categorySlugs, formatValues, categoryTopics),
     /unknown format/

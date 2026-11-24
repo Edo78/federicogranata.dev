@@ -133,6 +133,7 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addFilter("statusLabel", (status) => {
     return {
+      current: "Corrente",
       evergreen: "Evergreen",
       archived: "Archivio",
       "needs-review": "Da rivedere",

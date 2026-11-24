@@ -32,7 +32,7 @@ collections:
       - { label: "Descrizione", name: "description", widget: "text" }
       - label: "Categoria"
         name: "category"
-        widget: "select"
+        widget: "category-select"
         options:
 {% for cat in settings.categories %}
           - { label: {{ cat.name | yamlScalar | safe }}, value: {{ cat.slug | yamlScalar | safe }} }
@@ -51,8 +51,10 @@ collections:
       - label: "Stato editoriale"
         name: "status"
         widget: "select"
-        default: "needs-review"
+        default: "current"
+        hint: "Corrente è lo stato normale, senza avvisi. Usa Da rivedere o Archivio quando il testo richiede una nota; Evergreen per contenuti durevoli."
         options:
+          - { label: "Corrente", value: "current" }
           - { label: "Evergreen", value: "evergreen" }
           - { label: "Da rivedere", value: "needs-review" }
           - { label: "Archivio", value: "archived" }

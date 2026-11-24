@@ -4,7 +4,7 @@ const { topicSlug } = require("./topics.js");
 const ALLOWED_SCHEMAS = new Set([
   "BlogPosting", "HowTo", "Review", "CreativeWork", "ShortStory", "WebPage"
 ]);
-const ALLOWED_STATUSES = new Set(["evergreen", "archived", "needs-review"]);
+const ALLOWED_STATUSES = new Set(["current", "evergreen", "archived", "needs-review"]);
 const ALLOWED_FORMAT_SCHEMAS = new Set(["BlogPosting", "CreativeWork", "ShortStory"]);
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
