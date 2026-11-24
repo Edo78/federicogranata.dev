@@ -10,11 +10,43 @@ function loadEditor(fetchOptions = {}) {
   const widgets = {};
   const events = {};
   const previews = {};
+  const initialized = [];
+  const root = { inert: false, setAttribute() {} };
+  const notices = [];
+  const frames = [];
+  const backends = Object.fromEntries(["github", "proxy"].map(name => [name, {
+    init(...args) {
+      const read = fetchOptions.read || (async () => []);
+      const backend = {
+        name,
+        args,
+        async persistEntry() {
+          if (fetchOptions.persistError) throw fetchOptions.persistError;
+          return "saved";
+        },
+        entriesByFiles: read,
+        entriesByFolder: read,
+        getEntry: read,
+        getMedia: read,
+        [name === "github" ? "allEntriesByFolder" : "entriesByFolder"]: read,
+      };
+      initialized.push(backend);
+      return backend;
+    },
+  }]));
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, "../src/public/js/admin.js"), "utf8"), {
     createClass: definition => definition,
     h: (type, props, ...children) => ({ type, props, children }),
     fetch: async () => ({ ok: fetchOptions.ok !== false, json: async () => taxonomy }),
+    setTimeout,
+    requestAnimationFrame: callback => frames.push(callback),
+    document: {
+      getElementById: () => root,
+      createElement: () => ({ style: {}, setAttribute() {} }),
+      body: { appendChild: notice => notices.push(notice) },
+    },
     CMS: {
+      getBackend: name => backends[name],
       getWidget: () => ({ control() {}, preview() {}, schema: {} }),
       registerWidget: (name, control) => { widgets[name] = control; },
       registerEventListener: event => { events[event.name] = event.handler; },
@@ -22,8 +54,66 @@ function loadEditor(fetchOptions = {}) {
       registerPreviewTemplate: (name, preview) => { previews[name] = preview; },
     },
   });
-  return { widgets, events, previews };
+  return { widgets, events, previews, backends, initialized, root, notices, flushFrame: () => frames.splice(0).forEach(callback => callback()) };
 }
+
+test("GitHub and local backends refresh the saved baseline after every persist", () => {
+  const { backends, initialized } = loadEditor();
+  const config = { branch: "cms-oauth" };
+  for (const name of ["github", "proxy"]) {
+    const backend = backends[name].init(config);
+    assert.equal(backend, initialized.at(-1), "preserve the original backend instance");
+    assert.equal(backend.args[0], config, "forward the backend configuration unchanged");
+    assert.equal(backend.reloadEntriesAfterPersist, true);
+  }
+});
+
+test("editing remains locked until the persisted entry cache has refreshed", async () => {
+  for (const name of ["github", "proxy"]) {
+    let finishRefresh;
+    const { backends, root, notices, flushFrame } = loadEditor({ read: () => new Promise(resolve => { finishRefresh = resolve; }) });
+    const backend = backends[name].init({});
+    assert.equal(await backend.persistEntry(), "saved");
+    assert.equal(root.inert, true, "a successful write must not unlock stale controls");
+    assert.equal(notices[0].hidden, false);
+    const refreshed = backend.entriesByFolder("posts");
+    assert.equal(root.inert, true);
+    finishRefresh([]);
+    await refreshed;
+    flushFrame();
+    assert.equal(root.inert, true, "wait for the refreshed editor to render");
+    flushFrame();
+    assert.equal(root.inert, false);
+    assert.equal(notices[0].hidden, true);
+  }
+});
+
+test("a failed write releases the editor and preserves the original error", async () => {
+  const failure = new Error("GitHub write failed");
+  const { backends, root } = loadEditor({ persistError: failure });
+  const backend = backends.github.init({});
+  await assert.rejects(backend.persistEntry(), error => error === failure);
+  assert.equal(root.inert, false);
+});
+
+test("parallel media and entry refreshes must both finish before editing resumes", async () => {
+  const pending = [];
+  const { backends, root, flushFrame } = loadEditor({ read: () => new Promise(resolve => pending.push(resolve)) });
+  const backend = backends.github.init({});
+  await backend.persistEntry();
+  const entry = backend.entriesByFolder("posts");
+  const media = backend.getMedia();
+  pending[0]([]);
+  await entry;
+  flushFrame();
+  flushFrame();
+  assert.equal(root.inert, true);
+  pending[1]([]);
+  await media;
+  flushFrame();
+  flushFrame();
+  assert.equal(root.inert, false);
+});
 
 function control(definition, props) {
   const instance = { props, state: {}, setState(value, callback) { Object.assign(this.state, value); callback?.(); } };

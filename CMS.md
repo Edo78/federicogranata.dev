@@ -46,6 +46,20 @@ sviluppo: il proxy locale salva su disco e non verifica l'autenticazione OAuth.
 
 ## Criteri di collaudo
 
+### Stato editoriale
+
+`Corrente` è lo stato normale e predefinito. `Evergreen` indica una valutazione
+editoriale di validità duratura: entrambi rimangono pubblici e senza avvisi, senza
+automatismi differenti per scadenze, feed o revisioni. `Da rivedere` e `Archivio`
+mostrano invece una nota al lettore.
+
+Il client Decap è fissato alla versione 3.18.0. Dopo ogni salvataggio il pannello
+aggiorna la copia delle voci usata per rilevare le modifiche; durante questa breve
+sincronizzazione l'editor rimane occupato. Questo permette anche di ripristinare
+un valore precedentemente salvato senza dover riaprire l'articolo.
+
+### Prove
+
 1. Aprire `/admin/` sull'URL del branch e accedere con GitHub.
 2. Creare un articolo di prova e controllare il commit sul branch `cms-oauth`.
 3. Modificare l'articolo, caricare una copertina e verificare file e commit.

@@ -1,3 +1,82 @@
+let activeSaves = 0;
+let savingNotice;
+function setSaveLock(change) {
+  activeSaves = Math.max(0, activeSaves + change);
+  const busy = activeSaves > 0;
+  const root = document.getElementById("nc-root");
+  if (root) {
+    root.inert = busy;
+    root.setAttribute("aria-busy", String(busy));
+  }
+  if (!savingNotice) {
+    savingNotice = document.createElement("div");
+    savingNotice.setAttribute("role", "status");
+    savingNotice.setAttribute("aria-live", "polite");
+    savingNotice.textContent = "Salvataggio e aggiornamento dell’editor…";
+    savingNotice.style.cssText = "position:fixed;inset:0;z-index:2147483647;background:rgba(255,255,255,.78);color:#20313a;font:16px system-ui,sans-serif;text-align:center;padding-top:25vh;cursor:progress";
+    document.body.appendChild(savingNotice);
+  }
+  savingNotice.hidden = !busy;
+}
+
+// Decap compares edits with its cached entries. Refresh that cache after each
+// save, otherwise reverting to an earlier saved value is mistaken for no change.
+// reloadEntriesAfterPersist is handled natively by the pinned Decap 3.18 client.
+for (const name of ["github", "proxy"]) {
+  const registration = CMS.getBackend(name);
+  const initialize = registration.init;
+  registration.init = (...args) => {
+    const backend = initialize(...args);
+    backend.reloadEntriesAfterPersist = true;
+    let waitingForRefresh = false;
+    let activeReads = 0;
+    const readAll = typeof backend.allEntriesByFolder === "function" ? backend.allEntriesByFolder.bind(backend) : null;
+    const release = () => {
+      if (!waitingForRefresh) return;
+      waitingForRefresh = false;
+      setSaveLock(-1);
+    };
+    const persist = backend.persistEntry.bind(backend);
+    backend.persistEntry = async (...values) => {
+      if (!waitingForRefresh) {
+        waitingForRefresh = true;
+        setSaveLock(1);
+      }
+      try {
+        return await persist(...values);
+      } catch (error) {
+        release();
+        throw error;
+      }
+    };
+    // Keep controls locked until the native refresh has reached Redux. Decap
+    // resets its saving flag before this request completes, so otherwise a fast
+    // edit can still be compared with (or replaced by) the previous snapshot.
+    for (const method of ["allEntriesByFolder", "entriesByFolder", "entriesByFiles", "getEntry", "getMedia"]) {
+      if (typeof backend[method] !== "function") continue;
+      const read = backend[method].bind(backend);
+      backend[method] = async (...values) => {
+        const refreshing = waitingForRefresh;
+        if (refreshing) activeReads++;
+        try {
+          // Refresh older entries too, even if the edited post is not on the
+          // first GitHub collection page. Proxy reads already return all files.
+          if (refreshing && method === "entriesByFolder" && readAll) return await readAll(...values);
+          return await read(...values);
+        } finally {
+          if (refreshing) {
+            activeReads--;
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              if (activeReads === 0) release();
+            }));
+          }
+        }
+      };
+    }
+    return backend;
+  };
+}
+
 // Controls receive a stale `entry` in Decap. Forward the category control's
 // actual draft value instead of polling the persisted entry.
 const categoryContext = {
