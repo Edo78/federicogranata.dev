@@ -1,0 +1,11 @@
+---
+title: Prova OAuth Decap
+description: Post di prova
+category: tecnologia
+format: nota
+published: true
+pinned: false
+status: needs-review
+date: 2026-11-24T18:23:00.000+01:00
+---
+Questo è un post di prova
