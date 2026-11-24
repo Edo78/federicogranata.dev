@@ -153,3 +153,20 @@ test("admin CSP is scoped after the strict public policy", () => {
   assert.doesNotMatch(publicPolicy, /unsafe-eval/);
   assert.match(adminPolicy, /unsafe-eval/);
 });
+
+test("editor CSP permits media reads before upload without relaxing public pages", () => {
+  const config = fs.readFileSync(path.join(__dirname, "..", "netlify.toml"), "utf8");
+  const publicRule = config.indexOf('for = "/*"');
+  const adminRule = config.indexOf('for = "/admin/*"');
+  const publicPolicy = config.slice(publicRule, adminRule).match(/Content-Security-Policy = "([^"]+)"/)[1];
+  const adminPolicy = config.slice(adminRule).match(/Content-Security-Policy = "([^"]+)"/)[1];
+  const directives = Object.fromEntries(adminPolicy.split(";").filter(value => value.trim()).map(value => {
+    const [name, ...sources] = value.trim().split(/\s+/);
+    return [name, sources];
+  }));
+  assert.ok(directives["connect-src"].includes("blob:"), "Decap fetches temporary assets before persisting them");
+  assert.ok(directives["connect-src"].includes("https://raw.githubusercontent.com"));
+  assert.ok(directives["img-src"].includes("https://raw.githubusercontent.com"));
+  assert.ok(directives["img-src"].includes("https://avatars.githubusercontent.com"));
+  assert.doesNotMatch(publicPolicy, /blob:|raw\.githubusercontent\.com|avatars\.githubusercontent\.com/);
+});
