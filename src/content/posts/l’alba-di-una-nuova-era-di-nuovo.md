@@ -7,7 +7,7 @@ format: nota
 tags:
   - blog
 published: true
-pinned: true
+pinned: false
 status: current
 date: 2026-11-25T09:34:00.000+01:00
 cover: /img/dattiloscrivere-nel-cuore-dello-steampunk.png
