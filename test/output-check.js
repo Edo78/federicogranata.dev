@@ -170,3 +170,88 @@ test("editor CSP permits media reads before upload without relaxing public pages
   assert.ok(directives["img-src"].includes("https://avatars.githubusercontent.com"));
   assert.doesNotMatch(publicPolicy, /blob:|raw\.githubusercontent\.com|avatars\.githubusercontent\.com/);
 });
+
+test("published articles are reachable exactly once in their respective archives", () => {
+  const htmlFiles = walk(OUTPUT_DIR)
+    .filter(file => file.endsWith(".html"));
+
+  const pages = new Map(htmlFiles.map(file => [
+    path.relative(OUTPUT_DIR, file).split(path.sep).join("/"),
+    fs.readFileSync(file, "utf8"),
+  ]));
+
+  function internalLinks(html) {
+    return [...html.matchAll(/\bhref="(\/[^"]*)"/g)]
+      .map(match => match[1])
+      .filter(href => !href.startsWith("//"))
+      .map(href => decodeURIComponent(
+        new URL(href, "https://example.com").pathname
+      ));
+  }
+
+  function archivePages(archiveUrl) {
+    const prefix = archiveUrl.slice(1);
+
+    assert.ok(
+      pages.has(`${prefix}index.html`),
+      `Missing archive ${archiveUrl}`
+    );
+
+    return [...pages.entries()]
+      .filter(([file]) =>
+        file === `${prefix}index.html` ||
+        (
+          file.startsWith(prefix) &&
+          /^page\/\d+\/index\.html$/.test(
+            file.slice(prefix.length)
+          )
+        )
+      );
+  }
+
+  const settings = require("../src/_data/settings.json");
+  const categories = new Set(
+    settings.categories.map(category => category.slug)
+  );
+
+  for (const [file, html] of pages) {
+    const parts = file.split("/");
+
+    if (
+      parts.length !== 3 ||
+      !categories.has(parts[0]) ||
+      parts[2] !== "index.html"
+    ) continue;
+
+    const header = html.match(
+      /<header class="article-header">([\s\S]*?)<\/header>/
+    )?.[1];
+
+    assert.ok(header, `${file}: article header is missing`);
+
+    const postUrl = `/${file.replace(/index\.html$/, "")}`;
+    const category = file.split("/")[0];
+
+    const topics = internalLinks(header)
+      .filter(url => url.startsWith(`/${category}/tag/`));
+
+    const archives = new Set([
+      "/",
+      `/${category}/`,
+      ...topics,
+    ]);
+
+    for (const archive of archives) {
+      const occurrences = archivePages(archive)
+        .flatMap(([, content]) => internalLinks(content))
+        .filter(url => url === postUrl)
+        .length;
+
+      assert.equal(
+        occurrences,
+        1,
+        `${postUrl} must appear exactly once in ${archive}`
+      );
+    }
+  }
+});

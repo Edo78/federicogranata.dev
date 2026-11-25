@@ -12,7 +12,7 @@ eleventyComputed:
   categoryName: "{{ topicPage.category.name }}"
 ---
 
-{% if topicPage.pageIndex == 0 %}
+{% ifAsync topicPage.pageIndex == 0 %}
   <nav class="breadcrumb mb-5" aria-label="Percorso">
     <a href="/">Home</a><span aria-hidden="true">/</span>
     <a href="/{{ topicPage.category.slug }}/">{{ topicPage.category.name }}</a><span aria-hidden="true">/</span>

@@ -12,7 +12,7 @@ eleventyComputed:
   categoryName: "{{ categoryPage.category.name }}"
 ---
 
-{% if categoryPage.pageIndex == 0 %}
+{% ifAsync categoryPage.pageIndex == 0 %}
   {% set heroTitle = categoryPage.category.name %}
   {% set heroDescription = categoryPage.category.description %}
   {% set heroEyebrow = "Sezione / " + categoryPage.category.slug %}

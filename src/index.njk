@@ -10,7 +10,7 @@ eleventyComputed:
   description: "{% if homePage.pageIndex > 0 %}Archivio degli articoli, pagina {{ homePage.pageIndex + 1 }}.{% else %}{{ settings.site.description }}{% endif %}"
 ---
 
-{% if homePage.pageIndex == 0 %}
+{% ifAsync homePage.pageIndex == 0 %}
   {% set heroTitle = "Appunti dal banco di lavoro" %}
   {% set heroDescription = "Software, automazione, oggetti e storie: cosa sto costruendo, come funziona e cosa ho imparato." %}
   {% set heroEyebrow = "Field notes / build log" %}
