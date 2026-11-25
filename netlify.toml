@@ -5,6 +5,9 @@
 [build.environment]
   NODE_VERSION = "22"
 
+[context.production.environment]
+  CMS_GITHUB_BRANCH = "main"
+
 [context.cms-oauth.environment]
   CMS_GITHUB_REPO = "Edo78/federicogranata.dev"
   CMS_GITHUB_BRANCH = "cms-oauth"

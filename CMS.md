@@ -1,5 +1,15 @@
 # Decap CMS: GitHub OAuth
 
+## Produzione
+
+- Sito: <https://blog.federicogranata.dev>
+- Pannello: <https://blog.federicogranata.dev/admin/>
+- Repository: `Edo78/federicogranata.dev`, branch `main`
+
+I salvataggi dal pannello di produzione creano commit in `main` e attivano la
+pubblicazione Netlify. Il contesto `production` imposta esplicitamente questo
+branch e il CMS usa il dominio principale come collegamento di ritorno al sito.
+
 ## Ambiente di collaudo
 
 - Repository: `Edo78/federicogranata.dev`
@@ -35,10 +45,10 @@ repository. Il repository è pubblico e il CMS richiede lo scope `public_repo`.
 | Variabile | Valore predefinito / comportamento |
 | --- | --- |
 | `CMS_GITHUB_REPO` | `Edo78/federicogranata.dev` |
-| `CMS_GITHUB_BRANCH` | Valore esplicito, altrimenti `BRANCH` di Netlify, altrimenti `cms-oauth` |
+| `CMS_GITHUB_BRANCH` | Valore esplicito, altrimenti `BRANCH` di Netlify, altrimenti `main` |
 | `CMS_GITHUB_AUTH_SCOPE` | `public_repo`; usare `repo` per un repository privato |
 | `CMS_OAUTH_SITE_DOMAIN` | `federico-granata.netlify.app`, identifica il progetto che gestisce OAuth |
-| `DEPLOY_PRIME_URL` | URL usato dal CMS per tornare al sito del deploy corrente |
+| `URL` / `DEPLOY_PRIME_URL` | Dominio principale in produzione; URL del branch negli altri deploy |
 
 Il contesto `cms-oauth` in `netlify.toml` fissa esplicitamente il branch di scrittura
 del CMS. La configurazione locale mantiene `local_backend: true` soltanto in
@@ -67,4 +77,6 @@ un valore precedentemente salvato senza dover riaprire l'articolo.
 5. Verificare il contenuto pubblicato sull'URL temporaneo.
 6. Eseguire logout e nuovo login; eliminare i contenuti di prova tramite il CMS.
 
-La migrazione del branch di produzione avviene soltanto dopo questo collaudo.
+Le prove editoriali vanno eseguite su `cms-oauth`; il pannello di produzione salva
+invece in `main`. L'app OAuth e il provider Netlify sono condivisi: non serve
+ricrearli quando si promuove il codice in produzione.

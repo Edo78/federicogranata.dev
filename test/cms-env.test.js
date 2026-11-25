@@ -5,7 +5,7 @@ const { execFileSync } = require("node:child_process");
 
 function readEnvironment(values = {}) {
   const env = { ...process.env };
-  for (const key of ["ELEVENTY_ENV", "CMS_GITHUB_REPO", "CMS_GITHUB_BRANCH", "CMS_GITHUB_AUTH_SCOPE", "CMS_OAUTH_SITE_DOMAIN", "DEPLOY_PRIME_URL", "BRANCH"]) {
+  for (const key of ["ELEVENTY_ENV", "CMS_GITHUB_REPO", "CMS_GITHUB_BRANCH", "CMS_GITHUB_AUTH_SCOPE", "CMS_OAUTH_SITE_DOMAIN", "DEPLOY_PRIME_URL", "BRANCH", "CONTEXT", "URL"]) {
     delete env[key];
   }
   return JSON.parse(execFileSync(process.execPath, [
@@ -13,12 +13,18 @@ function readEnvironment(values = {}) {
   ], { cwd: path.join(__dirname, ".."), env: { ...env, ...values }, encoding: "utf8" }));
 }
 
-test("a local production build targets the OAuth test branch, not main", () => {
+test("production builds default to the main content branch", () => {
   const env = readEnvironment();
   assert.equal(env.CMS_GITHUB_REPO, "Edo78/federicogranata.dev");
-  assert.equal(env.CMS_GITHUB_BRANCH, "cms-oauth");
+  assert.equal(env.CMS_GITHUB_BRANCH, "main");
   assert.equal(env.CMS_GITHUB_AUTH_SCOPE, "public_repo");
   assert.equal(env.CMS_OAUTH_SITE_DOMAIN, "federico-granata.netlify.app");
+});
+
+test("production CMS uses main and the primary domain rather than a deploy alias", () => {
+  const env = readEnvironment({ BRANCH: "main", CONTEXT: "production", URL: "https://blog.federicogranata.dev", DEPLOY_PRIME_URL: "https://main--federico-granata.netlify.app" });
+  assert.equal(env.CMS_GITHUB_BRANCH, "main");
+  assert.equal(env.CMS_SITE_URL, "https://blog.federicogranata.dev");
 });
 
 test("Netlify branch deploys use their branch while OAuth identifies the parent site", () => {
