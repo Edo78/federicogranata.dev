@@ -1,0 +1,22 @@
+---
+layout: layouts/base.njk
+---
+<article class="page-shell">
+  {% if terminalHeader %}
+  <header class="article-header">
+    <p class="eyebrow">Profilo / README</p>
+    <h1 class="display-title mt-3 text-4xl sm:text-5xl lg:text-6xl text-text-strong">{{ title }}</h1>
+    {% if description %}
+      <p class="lead-text mt-5 max-w-2xl text-text-soft">{{ description }}</p>
+    {% endif %}
+  </header>
+  {% else %}
+  <h1 class="display-title mb-8 text-4xl sm:text-5xl lg:text-6xl text-text-strong">{{ title }}</h1>
+  {% endif %}
+
+  <div class="prose prose-lg mt-10 max-w-none">
+    {{ content | safe }}
+  </div>
+
+  {% include "partials/author-sig.njk" %}
+</article>

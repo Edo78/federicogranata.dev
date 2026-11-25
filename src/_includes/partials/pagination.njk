@@ -1,14 +1,14 @@
-{% if pagination.previousPageHref or pagination.nextPageHref %}
-    <nav class="pagination" role="pagination">
-        {% if page.permalink != pagination.previousPageHref %}
-            <a href="{{ pagination.previousPageHref }}">Prev page</a>
-        {% else %}
-            <span>Prev page</span>
-        {% endif %}
-        {% if page.permalink != pagination.nextPageHref %}
-            <a href="{{ pagination.nextPageHref }}">Next page</a>
-        {% else %}
-            <span>Next page</span>
-        {% endif %}
-    </nav>
+{# Expects: pagination (Eleventy pagination object) #}
+{% if pagination.pages | length > 1 %}
+<nav class="mt-12 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between" aria-label="Paginazione">
+  <span class="meta-line">Pagina {{ pagination.pageNumber + 1 }} di {{ pagination.pages | length }}</span>
+  <div class="flex flex-wrap gap-3">
+    {% if pagination.href.previous %}
+      <a href="{{ pagination.href.previous }}" class="pager-link">&larr; Precedente</a>
+    {% endif %}
+    {% if pagination.href.next %}
+      <a href="{{ pagination.href.next }}" class="pager-link">Successiva &rarr;</a>
+    {% endif %}
+  </div>
+</nav>
 {% endif %}

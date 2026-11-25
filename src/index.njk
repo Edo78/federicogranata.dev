@@ -1,21 +1,56 @@
 ---
+layout: layouts/base.njk
 pagination:
-  data: collections.posts
-  size: 7
-  alias: posts
+  data: collections.homePages
+  size: 1
+  alias: homePage
+permalink: "{% if homePage.pageIndex == 0 %}/{% else %}/page/{{ homePage.pageIndex + 1 }}/{% endif %}"
+eleventyComputed:
+  title: "{% if homePage.pageIndex > 0 %}Archivio - pagina {{ homePage.pageIndex + 1 }}{% endif %}"
+  description: "{% if homePage.pageIndex > 0 %}Archivio degli articoli, pagina {{ homePage.pageIndex + 1 }}.{% else %}{{ settings.site.description }}{% endif %}"
 ---
 
-{% extends 'layouts/default.njk' %}
-{% from "partials/card.njk" import card %}
+{% if homePage.pageIndex == 0 %}
+  {% set heroTitle = "Appunti dal banco di lavoro" %}
+  {% set heroDescription = "Software, automazione, oggetti e storie: cosa sto costruendo, come funziona e cosa ho imparato." %}
+  {% set heroEyebrow = "Field notes / build log" %}
+  {% set heroNote = "Niente flusso infinito: un archivio piccolo, leggibile e aggiornato quando c'è qualcosa che vale la pena conservare." %}
+  {% include "partials/hero.njk" %}
 
-{% set title = "Posts" %}
+  {% set pinnedPost = homePage.pinnedPost %}
+  {% include "partials/pinned.njk" %}
+{% endif %}
 
-{% block content %}
-    <section class="post-feed">
-        {% for post in posts %}
-            {{ card(post) }}
-        {% endfor %}
-    </section>
+{% if homePage.posts | length or not homePage.pinnedPost %}
+<section class="archive-section">
+  <div class="archive-heading">
+    <div>
+      <p class="eyebrow">Archivio{% if homePage.pageIndex > 0 %} / pagina {{ homePage.pageIndex + 1 }}{% endif %}</p>
+      {% if homePage.pageIndex == 0 %}
+        <h2 class="section-title">Ultime note</h2>
+      {% else %}
+        <h1 class="section-title">Ultime note</h1>
+      {% endif %}
+    </div>
+    <div class="archive-stats">
+      <span class="meta-line">{{ homePage.totalPosts }} {% if homePage.totalPosts == 1 %}articolo{% else %}articoli{% endif %}</span>
+      <a href="/feed.xml" class="read-more">Feed Atom</a>
+    </div>
+  </div>
 
-    {% include "partials/pagination.njk" %}
-{% endblock%}
+  {% if homePage.posts | length == 0 and homePage.pageIndex == 0 and not homePage.pinnedPost %}
+    {% set emptyText = settings.site.emptyStateText %}
+    {% include "partials/empty-state.njk" %}
+  {% else %}
+    {% set cardHeadingLevel = 3 %}
+    {% if homePage.pageIndex > 0 %}{% set cardHeadingLevel = 2 %}{% endif %}
+    <div class="story-list">
+      {% for post in homePage.posts %}
+        {% postCard post, cardHeadingLevel %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+{% endif %}
+
+{% include "partials/pagination.njk" %}

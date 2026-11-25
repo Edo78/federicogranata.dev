@@ -1,49 +1,100 @@
-{% extends 'layouts/default.njk' %}
+---
+layout: layouts/base.njk
+---
+{% set catData = category | getCategoryData %}
+{% set related = collections.posts | relatedPosts(page.inputPath, category, tags, 2) %}
 
-{% set title = post.title %}
-{% set codeinjection_head = post.codeinjection_head %}
-{% set codeinjection_foot = post.codeinjection_foot %}
+<article class="article-shell">
+  <header class="article-header">
+    <nav class="breadcrumb" aria-label="Percorso">
+      <a href="/">Home</a>
+      <span aria-hidden="true">/</span>
+      {% if catData %}<a href="/{{ catData.slug }}/">{{ catData.name }}</a>{% else %}<span>Articolo</span>{% endif %}
+    </nav>
 
-{% block content %}
-    <article class="content">
-        {% if post.feature_image %}
-            <figure class="post-feature-image">
-                {% image post.feature_image, "", title, 500, [960] %}
-            </figure>
-        {% endif %}
-        <section class="post-full-content">
-            <h1 class="content-title">{{ title }}</h1>
-            <section class="content-body load-external-scripts">
-                {{ content | safe }}
-            </section>
-        </section>
-    </article>
-{% endblock %}
+    <p class="eyebrow mt-6">{{ format | formatLabel }}{% if status and status != "current" %} / {{ status | statusLabel }}{% endif %}</p>
+    <h1 class="display-title mt-3 text-4xl sm:text-5xl lg:text-6xl text-text-strong">{{ title }}</h1>
+    {% if description %}
+      <p class="lead-text mt-5 max-w-3xl text-text-soft">{{ description }}</p>
+    {% endif %}
 
-{%- block seo -%}
-    <!--Twitter Card-->
-    <meta name="twitter:site" content="{{ site.twitter }}">
-    <meta name="twitter:creator" content="{{ post.primary_author.twitter }}">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="{{ site.url + page.url }}">
-    <meta name="twitter:title" content="{{ title }} – {{ site.title }}">
-    <meta name="twitter:description" content="{{ post.excerpt }}">
-    <meta name="twitter:image" content="{{ post.feature_image }}">
+    <div class="article-meta mt-6">
+      <time datetime="{{ date | isoDate }}">{{ date | readableDate }}</time>
+      <span aria-hidden="true">&middot;</span>
+      <span>{{ content | readingTime }} di lettura</span>
+      {% if updated %}
+        <span aria-hidden="true">&middot;</span>
+        <span>Aggiornato <time datetime="{{ updated | isoDate }}">{{ updated | readableDate }}</time></span>
+      {% endif %}
+      {% if lastVerified %}
+        <span aria-hidden="true">&middot;</span>
+        <span>Verificato <time datetime="{{ lastVerified | isoDate }}">{{ lastVerified | readableDate }}</time></span>
+      {% endif %}
+      {% if repository %}
+        <span aria-hidden="true">&middot;</span>
+        <a href="{{ repository | safeUrl }}" class="meta-link">Repository &nearr;</a>
+      {% endif %}
+    </div>
 
-    <!--Schema-->
-    <link rel="author" href="{{ post.primary_author.website }}">
-    <link rel="publisher" href="{{ site.url }}">
-    <meta itemprop="name" content="{{ title }} – {{ site.title }}">
-    <meta itemprop="description" content="{{ post.excerpt }}">
-    <meta itemprop="image" content="{{ post.feature_image }}">
+    {% if tags | length > 1 %}
+      <div class="mt-5 flex flex-wrap gap-x-3 gap-y-1">
+        {% for tag in tags %}
+          {% if tag !== "post" %}<a href="{{ tag | topicUrl(category) }}" class="topic-label">#{{ tag }}</a>{% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </header>
 
-    <!-- Facebook OpenGraph -->
-    <meta property="og:url" content="{{ site.url + page.url }}">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ title }} – {{ site.title }}">
-    <meta property="og:image" content="{{ post.feature_image }}">
-    <meta property="og:description" content="{{ post.excerpt }}">
-    <meta property="og:site_name" content="{{ site.title }}">
-    <meta property="og:locale" content="{{ site.lang }}">
-    <meta property="article:author" content="{{ site.url }}">
-{%- endblock -%}
+  {% if cover %}
+    <div class="post-cover mt-8 sm:mt-10 overflow-hidden">
+      {% image cover, coverAlt or "", "header", true %}
+    </div>
+  {% endif %}
+
+  {% if status == "archived" %}
+    <aside class="editorial-status mt-8" aria-label="Stato editoriale">
+      <span class="eyebrow">Archivio</span>
+      <p>Questo testo resta online come documento storico. Le informazioni tecniche possono non descrivere più il progetto attuale.</p>
+    </aside>
+  {% elseif status == "needs-review" %}
+    <aside class="editorial-status mt-8" aria-label="Stato editoriale">
+      <span class="eyebrow">Da rivedere</span>
+      <p>Il contesto resta utile, ma strumenti e dettagli tecnici potrebbero essere cambiati dalla pubblicazione.</p>
+    </aside>
+  {% endif %}
+
+  <div class="prose prose-lg mt-10 max-w-none">
+    {{ content | safe }}
+  </div>
+
+  {% if attachment %}
+  <div class="mt-8 pt-6 border-t border-border">
+    <a href="{{ attachment | safeUrl }}" download class="button-link inline-flex items-center gap-2">
+      Scarica {{ attachment | basename }}
+    </a>
+  </div>
+  {% endif %}
+
+  {% if related | length %}
+  <section class="related-notes" aria-labelledby="related-title">
+    <p class="eyebrow">Continua nell'archivio</p>
+    <h2 id="related-title" class="section-title mt-2">Altre note</h2>
+    <div class="related-grid mt-5">
+      {% for relatedPost in related %}
+      {% set relatedCategory = relatedPost.data.category | getCategoryData %}
+      <article class="related-note card-surface">
+        <p class="card-meta">
+          {% if relatedCategory %}<span>{{ relatedCategory.name }}</span><span class="meta-dot">&middot;</span>{% endif %}
+          <span>{{ relatedPost.templateContent | readingTime }}</span>
+        </p>
+        <h3 class="display-title mt-3 text-2xl text-text-strong"><a href="{{ relatedPost.url }}" class="story-link card-link">{{ relatedPost.data.title }}</a></h3>
+        <p class="mt-3 text-sm leading-relaxed text-text-soft">{{ relatedPost.data.description }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% include "partials/author-sig.njk" %}
+  {% include "partials/jsonld.njk" %}
+</article>

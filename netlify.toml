@@ -1,15 +1,71 @@
 [build]
-  command = "npm run build"
-  publish = "dist/"
+  command = "npm run check"
+  publish = "_site"
 
-[template]
-  incoming-hooks = ["Ghost"]
+[build.environment]
+  NODE_VERSION = "22"
 
-[[plugins]]
-  package = "netlify-plugin-11ty"
-  [plugins.inputs]
-    cache_img = './img'
-    cache_img_httpHeader = false
+[context.production.environment]
+  CMS_GITHUB_BRANCH = "main"
 
-    cache_assets = '../.cache'
-    cache_other = []
+[context.cms-oauth.environment]
+  CMS_GITHUB_REPO = "Edo78/federicogranata.dev"
+  CMS_GITHUB_BRANCH = "cms-oauth"
+  CMS_OAUTH_SITE_DOMAIN = "federico-granata.netlify.app"
+
+[[redirects]]
+  from = "/lalba-di-una-nuova-era/"
+  to = "/opinioni/lalba-di-una-nuova-era/"
+  status = 301
+
+[[redirects]]
+  from = "/scrivo-non-solo-post/"
+  to = "/narrativa/scrivo-non-solo-post/"
+  status = 301
+
+[[redirects]]
+  from = "/domotica-e-come-implementarla/"
+  to = "/tecnologia/domotica-e-come-implementarla/"
+  status = 301
+
+[[redirects]]
+  from = "/creare-prototipi-e-non-solo/"
+  to = "/tecnologia/creare-prototipi-e-non-solo/"
+  status = 301
+
+[[redirects]]
+  from = "/appunti-elettronici/"
+  to = "/tecnologia/appunti-elettronici/"
+  status = 301
+
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+
+[[headers]]
+  for = "/admin/taxonomy.json"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    X-Frame-Options = "DENY"
+
+# Decap's AJV validator requires dynamic function generation. Keep this policy
+# after the global rule so Netlify Dev and production both select it for admin.
+# AssetProxy reads temporary blob URLs before uploading; GitHub media and avatars
+# also need their own image sources. These allowances are scoped to the editor.
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://raw.githubusercontent.com https://avatars.githubusercontent.com; connect-src 'self' blob: https://api.netlify.com https://api.github.com https://raw.githubusercontent.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    X-Frame-Options = "DENY"

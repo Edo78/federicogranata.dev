@@ -1,0 +1,33 @@
+---
+permalink: /sitemap.xml
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% for homePage in collections.homePages %}
+  <url>
+    <loc>{{ settings.site.url }}{% if homePage.pageIndex == 0 %}/{% else %}/page/{{ homePage.pageIndex + 1 }}/{% endif %}</loc>
+  </url>
+  {% endfor %}
+  {% for post in collections.posts %}
+  <url>
+    <loc>{{ settings.site.url }}{{ post.url }}</loc>
+    <lastmod>{{ post.date | effectiveDate(post.data.updated, post.data.lastVerified) | isoDate }}</lastmod>
+  </url>
+  {% endfor %}
+  {% for categoryPage in collections.categoryPages %}
+  <url>
+    <loc>{{ settings.site.url }}/{{ categoryPage.category.slug }}/{% if categoryPage.pageIndex > 0 %}page/{{ categoryPage.pageIndex + 1 }}/{% endif %}</loc>
+  </url>
+  {% endfor %}
+  {% for topicPage in collections.topicPages %}
+  <url>
+    <loc>{{ settings.site.url }}{{ topicPage.topic.url }}{% if topicPage.pageIndex > 0 %}page/{{ topicPage.pageIndex + 1 }}/{% endif %}</loc>
+  </url>
+  {% endfor %}
+  {% for staticPage in collections.page %}
+  <url>
+    <loc>{{ settings.site.url }}{{ staticPage.url }}</loc>
+  </url>
+  {% endfor %}
+</urlset>

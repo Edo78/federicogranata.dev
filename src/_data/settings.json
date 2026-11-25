@@ -1,0 +1,122 @@
+{
+  "site": {
+    "author": {
+      "name": "Federico \"Edo\" Granata",
+      "email": "federico.granata.dev@gmail.com",
+      "social": {
+        "github": "https://github.com/edo78",
+        "mastodon": "https://mastodon.uno/@edo78"
+      }
+    },
+    "url": "https://blog.federicogranata.dev",
+    "emptyStateText": "_blog /blɔg/ s. m. inv._\n\nLuogo digitale destinato alla pubblicazione periodica di articoli, note e altre forme di testo più o meno ben pensato. Nella sua forma attuale, questo esemplare si presenta in modalità di attesa: non per abbandono, ma per semplice realtà computazionale. Il multitasking, del resto, è largamente una leggenda consolatoria; il cervello fa quello che può, ovvero cambia contesto in fretta e spera di sembrare elegante. Sto finendo una cosa. Poi torno qui a scrivere. Grazie, nel frattempo, per aver trovato interessante anche la schermata di caricamento.",
+    "title": "Edo e le sue Farneticazioni",
+    "images": {
+      "thumbnail": {
+        "width": 400
+      },
+      "header": {
+        "width": 800
+      },
+      "content": {
+        "width": 800
+      }
+    },
+    "language": "it",
+    "locale": "it_IT",
+    "timezone": "Europe/Rome",
+    "postsPerPage": 6,
+    "description": "Appunti su software, automazione, making e scrittura.",
+    "feedSize": 16,
+    "feedFallbackDate": "2022-02-04T00:00:00+01:00"
+  },
+  "formats": [
+    {
+      "label": "Nota",
+      "value": "nota"
+    },
+    {
+      "label": "Aggiornamento",
+      "value": "aggiornamento",
+      "schema": "BlogPosting"
+    },
+    {
+      "label": "Racconto",
+      "value": "racconto",
+      "schema": "ShortStory"
+    },
+    {
+      "label": "Opinione",
+      "value": "opinione",
+      "schema": "BlogPosting"
+    }
+  ],
+  "categories": [
+    {
+      "name": "Tecnologia",
+      "slug": "tecnologia",
+      "description": "Software, strumenti, automazione e progetti costruiti per capire come funzionano.",
+      "defaultSchema": "BlogPosting",
+      "emptyText": "tecnologia /tekno loˈdʒiːa/ s. f.\n\nInsieme di strumenti, sistemi, idee brillanti e compromessi discutibili con cui l’essere umano tenta di imporre un ordine provvisorio al caos. In questa sezione, per il momento, il caos sta vincendo ai punti. Non è disinteresse: è coda di lavorazione. Sto ancora finendo alcune cose che richiedono più terminale che prosa. Poi arriveranno anche qui appunti, esperimenti, errori evitabili e occasionali intuizioni. Grazie, intanto, per aver trovato interessante anche una cartella ancora quasi vuota.",
+      "tags": [
+        {
+          "name": "javascript"
+        },
+        {
+          "name": "obsidian"
+        },
+        {
+          "name": "koreader"
+        },
+        {
+          "name": "home-assistant"
+        },
+        {
+          "name": "domotica"
+        },
+        {
+          "name": "3d-printing"
+        }
+      ]
+    },
+    {
+      "name": "Narrativa",
+      "slug": "narrativa",
+      "description": "Racconti, appunti di scrittura e lavori narrativi in corso.",
+      "defaultSchema": "CreativeWork",
+      "emptyText": "narrativa /narraˈtiːva/ s. f.\n\nArte incerta e ostinata di disporre parole in modo che qualcuno, leggendo, decida di restare. Questa sezione, al momento, tace. Non per assenza di storie, ma per il solito attrito tra immaginazione, tempo e vita pratica, che è meno poetico di quanto sembri. I racconti arriveranno. Alcuni bussano già, altri fanno i preziosi. Grazie, nel frattempo, per aver dato una possibilità anche a una pagina che promette più di quanto mostri.",
+      "tags": [
+        {
+          "name": "scrittura"
+        },
+        {
+          "name": "romanzo"
+        },
+        {
+          "name": "racconto"
+        }
+      ]
+    },
+    {
+      "name": "Opinioni",
+      "slug": "opinioni",
+      "description": "Tesi personali su tecnologia, cultura e sulle conseguenze delle cose che costruiamo.",
+      "defaultSchema": "BlogPosting",
+      "emptyText": "opinione /opiˈnjone/ s. f.\n\nForma verbale con cui un essere umano prende una complessità spesso indecente e tenta comunque di dirne qualcosa senza peggiorarla troppo. In questa sezione non c’è ancora nulla di pubblicato, il che forse, in certi periodi storici, è anche un segno di responsabilità. Non mancano i pensieri: manca solo il tempo di costringerli a diventare frasi leggibili. Tornerò anche qui. Grazie, intanto, per aver visitato una stanza ancora in fase di allestimento.",
+      "tags": [
+        {
+          "name": "tecnologia"
+        },
+        {
+          "name": "società"
+        },
+        {
+          "name": "cultura"
+        },
+        {
+          "name": "blog"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+---
+permalink: /admin/config.yml
+eleventyExcludeFromCollections: true
+---
+{% if env.ELEVENTY_ENV == 'development' %}
+local_backend: true
+{% endif %}
+
+backend:
+  name: github
+  repo: {{ env.CMS_GITHUB_REPO | yamlScalar | safe }}
+  branch: {{ env.CMS_GITHUB_BRANCH | yamlScalar | safe }}
+  auth_scope: {{ env.CMS_GITHUB_AUTH_SCOPE | yamlScalar | safe }}
+  base_url: https://api.netlify.com
+  auth_endpoint: auth
+  site_domain: {{ env.CMS_OAUTH_SITE_DOMAIN | yamlScalar | safe }}
+
+site_url: {{ (env.CMS_SITE_URL or settings.site.url) | yamlScalar | safe }}
+
+media_folder: "src/assets/images"
+public_folder: "/img"
+
+collections:
+  - name: "posts"
+    label: "Posts"
+    folder: "src/content/posts"
+    create: true
+    slug: "{% raw %}{{slug}}{% endraw %}"
+    fields:
+      # ── Identity ──────────────────────────────────────────────
+      - { label: "Titolo", name: "title", widget: "string" }
+      - { label: "Descrizione", name: "description", widget: "text" }
+      - label: "Categoria"
+        name: "category"
+        widget: "category-select"
+        options:
+{% for cat in settings.categories %}
+          - { label: {{ cat.name | yamlScalar | safe }}, value: {{ cat.slug | yamlScalar | safe }} }
+{% endfor %}
+      - label: "Formato"
+        name: "format"
+        widget: "select"
+        options:
+{% for format in settings.formats %}
+          - { label: {{ format.label | yamlScalar | safe }}, value: {{ format.value | yamlScalar | safe }} }
+{% endfor %}
+      - { label: "Topic", name: "tags", widget: "category-tags", required: false }
+      # ── Status ────────────────────────────────────────────────
+      - { label: "Pubblicato", name: "published", widget: "boolean", default: false }
+      - { label: "In evidenza", name: "pinned", widget: "boolean", default: false, hint: "La home, ogni categoria e ogni topic mostrano il proprio post in evidenza più recente per data di pubblicazione." }
+      - label: "Stato editoriale"
+        name: "status"
+        widget: "select"
+        default: "current"
+        hint: "Corrente è lo stato normale, senza avvisi. Usa Da rivedere o Archivio quando il testo richiede una nota; Evergreen per contenuti durevoli."
+        options:
+          - { label: "Corrente", value: "current" }
+          - { label: "Evergreen", value: "evergreen" }
+          - { label: "Da rivedere", value: "needs-review" }
+          - { label: "Archivio", value: "archived" }
+      - { label: "Data", name: "date", widget: "datetime" }
+      - { label: "Aggiornato", name: "updated", widget: "datetime", required: false }
+      - { label: "Ultima verifica tecnica", name: "lastVerified", widget: "datetime", required: false }
+      # ── Media ─────────────────────────────────────────────────
+      - { label: "Cover", name: "cover", widget: "image", required: false, media_library: { config: { multiple: false } } }
+      - { label: "Testo alternativo cover", name: "coverAlt", widget: "string", required: false, hint: "Lascia vuoto se l'immagine è solo decorativa" }
+      - label: "Allegato"
+        name: "attachment"
+        widget: "file"
+        required: false
+        media_folder: "src/assets/files"
+        public_folder: "/files"
+        hint: "PDF, EPUB o altri file scaricabili"
+      - { label: "Repository", name: "repository", widget: "string", required: false }
+      # ── Contenuto ─────────────────────────────────────────────
+      - { label: "Contenuto", name: "body", widget: "markdown" }
+
+  - name: "pages"
+    label: "Pagine"
+    folder: "src/content/pages"
+    create: true
+    fields:
+      - { label: "Titolo", name: "title", widget: "string" }
+      - { label: "Descrizione", name: "description", widget: "text" }
+      - { label: "Pubblicata", name: "published", widget: "boolean", default: false }
+      - { label: "Contenuto", name: "body", widget: "markdown" }
+
+  - name: "settings"
+    label: "Impostazioni"
+    files:
+      - label: "Impostazioni Sito"
+        name: "site-settings"
+        file: "src/_data/settings.json"
+        fields:
+          - label: "Sito"
+            name: "site"
+            widget: "object"
+            fields:
+              - { label: "Titolo", name: "title", widget: "string" }
+              - { label: "Descrizione", name: "description", widget: "text" }
+              - { label: "URL", name: "url", widget: "string" }
+              - { label: "Lingua", name: "language", widget: "string" }
+              - { label: "Locale social", name: "locale", widget: "string" }
+              - { label: "Fuso orario", name: "timezone", widget: "string" }
+              - label: "Autore"
+                name: "author"
+                widget: "object"
+                fields:
+                  - { label: "Nome", name: "name", widget: "string" }
+                  - { label: "Email", name: "email", widget: "string" }
+                  - label: "Social"
+                    name: "social"
+                    widget: "object"
+                    fields:
+                      - { label: "GitHub", name: "github", widget: "string" }
+                      - { label: "Mastodon", name: "mastodon", widget: "string" }
+              - { label: "Post per pagina", name: "postsPerPage", widget: "number", value_type: "int", min: 1, max: 100 }
+              - { label: "Post nel feed", name: "feedSize", widget: "number", value_type: "int", min: 1, max: 100 }
+              - { label: "Data fallback feed", name: "feedFallbackDate", widget: "datetime" }
+              - { label: "Testo sezione vuota", name: "emptyStateText", widget: "markdown", required: false }
+              - label: "Immagini"
+                name: "images"
+                widget: "object"
+                fields:
+                  - label: "Thumbnail"
+                    name: "thumbnail"
+                    widget: "object"
+                    fields:
+                      - { label: "Larghezza", name: "width", widget: "number", value_type: "int", min: 1, max: 4000 }
+                  - label: "Header"
+                    name: "header"
+                    widget: "object"
+                    fields:
+                      - { label: "Larghezza", name: "width", widget: "number", value_type: "int", min: 1, max: 4000 }
+                  - label: "Contenuto"
+                    name: "content"
+                    widget: "object"
+                    fields:
+                      - { label: "Larghezza", name: "width", widget: "number", value_type: "int", min: 1, max: 4000 }
+          - label: "Formati"
+            name: "formats"
+            widget: "list"
+            fields:
+              - { label: "Etichetta", name: "label", widget: "string" }
+              - { label: "Valore", name: "value", widget: "string" }
+              - label: "Schema"
+                name: "schema"
+                widget: "select"
+                required: false
+                options: ["BlogPosting", "CreativeWork", "ShortStory"]
+          - label: "Categorie"
+            name: "categories"
+            widget: "list"
+            hint: "L'ordine delle categorie definisce anche il menu di navigazione, tra Home e Chi sono."
+            fields:
+              - { label: "Nome", name: "name", widget: "string" }
+              - { label: "Slug", name: "slug", widget: "string" }
+              - { label: "Descrizione", name: "description", widget: "text" }
+              - { label: "Schema Default", name: "defaultSchema", widget: "string" }
+              - { label: "Testo vuoto (opzionale)", name: "emptyText", widget: "markdown", required: false }
+              - label: "Tags"
+                name: "tags"
+                widget: "list"
+                fields:
+                  - { label: "Nome", name: "name", widget: "string" }

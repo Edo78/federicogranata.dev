@@ -1,0 +1,34 @@
+<section class="editorial-intro mb-10 sm:mb-12">
+  <div class="intro-copy">
+    {% if heroEyebrow %}
+      <p class="eyebrow">{{ heroEyebrow }}</p>
+    {% endif %}
+
+    <h1 class="display-title mt-3 text-4xl sm:text-5xl lg:text-6xl text-text-strong">{{ heroTitle }}</h1>
+    <p class="lead-text mt-5 max-w-3xl text-text-soft">{{ heroDescription }}</p>
+
+    {% if heroNote %}
+      <p class="quiet-note mt-5">{{ heroNote }}</p>
+    {% endif %}
+
+    {% if heroCategory %}
+      <a href="/{{ heroCategory.slug }}/feed.xml" class="read-more mt-6 inline-flex">Feed Atom della sezione &rarr;</a>
+    {% endif %}
+  </div>
+
+  <aside class="intro-index" aria-label="Indice delle sezioni">
+    <p class="eyebrow">{% if heroCategory %}Altre sezioni{% else %}Indice{% endif %}</p>
+    <ul class="directory-list mt-4">
+      {% for cat in settings.categories %}
+        {% if not heroCategory or cat.slug != heroCategory.slug %}
+          <li>
+            <a href="/{{ cat.slug }}/" class="directory-link">
+              <span class="directory-name">{{ cat.name }}</span>
+              <span class="directory-description">{{ cat.description }}</span>
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </aside>
+</section>
