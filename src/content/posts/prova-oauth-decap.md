@@ -6,7 +6,7 @@ format: nota
 tags: []
 published: true
 pinned: false
-status: needs-review
+status: evergreen
 date: 2026-11-24T18:23:00.000+01:00
 cover: /img/test.jpg
 ---
