@@ -99,6 +99,52 @@ function normalizeTopics(value) {
   return [];
 }
 
+// A root-relative public URL is treated as already published by Decap. Resolve
+// it through the media folder instead, so newly staged files use their blob.
+function editorMediaPath(value, field) {
+  if (typeof value !== "string") return value;
+  const folder = field?.get?.("public_folder") || "/img";
+  const prefix = `${folder.replace(/\/+$/, "")}/`;
+  if (!value.startsWith(prefix)) return value;
+  const path = value.slice(prefix.length);
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path;
+  }
+}
+
+const imageAssetGetters = new WeakMap();
+function imageAssetGetter(getAsset, field) {
+  let getters = imageAssetGetters.get(getAsset);
+  if (!getters) {
+    getters = new Map();
+    imageAssetGetters.set(getAsset, getters);
+  }
+  if (!getters.has(field)) {
+    getters.set(field, (value, imageField = field) => getAsset(editorMediaPath(value, imageField), imageField));
+  }
+  return getters.get(field);
+}
+
+const ImageWidget = CMS.getWidget("image");
+class DraftImageControl extends ImageWidget.control {
+  constructor(props) {
+    super(props);
+    // Preserve the native control ID and insertion lifecycle. Only replace the
+    // asset getter on its image elements, not the widget that owns the upload.
+    const renderImages = this.renderImages;
+    this.renderImages = () => {
+      const element = renderImages();
+      const getAsset = imageAssetGetter(this.props.getAsset, this.props.field);
+      if (element.props.getAsset) return h(element.type, { ...element.props, getAsset });
+      const image = element.props.children;
+      return h(element.type, element.props, h(image.type, { ...image.props, getAsset }));
+    };
+  }
+}
+CMS.registerWidget("image", DraftImageControl, ImageWidget.preview, ImageWidget.schema);
+
 function validTopics(value, category, taxonomy) {
   const allowed = taxonomy[category] || [];
   return [...new Set(normalizeTopics(value))].filter(topic => allowed.includes(topic)).slice(0, 3);
@@ -231,7 +277,7 @@ const PostPreview = createClass({
     const statusLabel = { current: "Corrente", evergreen: "Evergreen", "needs-review": "Da rivedere", archived: "Archivio" }[status];
     const cover = entry.getIn(["data", "cover"]);
     const coverAlt = entry.getIn(["data", "coverAlt"]) || "";
-    const coverAsset = cover ? this.props.getAsset(cover) : null;
+    const coverAsset = cover ? this.props.getAsset(editorMediaPath(cover)) : null;
     const tags = entry.getIn(["data", "tags"]);
     const tagList = normalizeTopics(tags);
 

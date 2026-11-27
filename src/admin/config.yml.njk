@@ -64,14 +64,24 @@ collections:
       # ── Media ─────────────────────────────────────────────────
       - { label: "Cover", name: "cover", widget: "image", required: false, media_library: { config: { multiple: false } } }
       - { label: "Testo alternativo cover", name: "coverAlt", widget: "string", required: false, hint: "Lascia vuoto se l'immagine è solo decorativa" }
-      - label: "Allegato"
-        name: "attachment"
-        widget: "file"
+      - label: "Allegati"
+        label_singular: "Allegato"
+        name: "attachments"
+        widget: "list"
         required: false
-        media_folder: "src/assets/files"
-        public_folder: "/files"
-        hint: "PDF, EPUB o altri file scaricabili"
-      - { label: "Repository", name: "repository", widget: "string", required: false }
+        hint: "Aggiungi un elemento per ciascun formato, ad esempio PDF ed EPUB dello stesso racconto."
+        summary: "{% raw %}{{fields.label}} {{fields.file}}{% endraw %}"
+        fields:
+          - { label: "Etichetta", name: "label", widget: "string", required: false, hint: "Es. Scarica PDF o Scarica EPUB; se vuoto si usa il nome del file." }
+          - label: "File"
+            name: "file"
+            widget: "file"
+            media_folder: "/src/assets/files"
+            public_folder: "/files"
+            media_library: { allow_multiple: false, config: { multiple: false } }
+      # Keep legacy single attachments when an older entry is edited.
+      - { name: "attachment", widget: "hidden", required: false }
+      - { label: "Repository del progetto", name: "repository", widget: "string", required: false, hint: "Link facoltativo al codice del progetto descritto nell'articolo, ad esempio su GitHub. Non è il repository del blog." }
       # ── Contenuto ─────────────────────────────────────────────
       - { label: "Contenuto", name: "body", widget: "markdown" }
 

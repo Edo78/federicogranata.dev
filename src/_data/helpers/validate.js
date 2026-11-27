@@ -106,6 +106,16 @@ function validatePost(data, categorySlugs, formatValues = new Set(), categoryTop
   if (data.coverAlt !== undefined) {
     assert(typeof data.coverAlt === "string", `post '${data.title}' has an invalid coverAlt`);
   }
+  if (data.attachments != null) {
+    assert(Array.isArray(data.attachments), `post '${data.title}' attachments must be an array`);
+    for (const attachment of data.attachments) {
+      assert(attachment && typeof attachment === "object" && isSafeUrl(attachment.file), `post '${data.title}' has an invalid attachment URL`);
+      assert(attachment.label == null || typeof attachment.label === "string", `post '${data.title}' has an invalid attachment label`);
+    }
+  }
+  if (data.attachment) {
+    assert(isSafeUrl(data.attachment), `post '${data.title}' has an invalid legacy attachment URL`);
+  }
 
   assert(Array.isArray(data.tags), `post '${data.title}' tags must be an array`);
   assert(data.tags.every(tag => typeof tag === "string" && tag), `post '${data.title}' tags must contain non-empty strings`);
