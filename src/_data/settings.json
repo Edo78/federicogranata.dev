@@ -8,6 +8,7 @@
         "mastodon": "https://mastodon.uno/@edo78"
       }
     },
+    "feedFallbackDate": "2022-02-04T00:00:00+01:00",
     "url": "https://blog.federicogranata.dev",
     "emptyStateText": "_blog /blɔg/ s. m. inv._\n\nLuogo digitale destinato alla pubblicazione periodica di articoli, note e altre forme di testo più o meno ben pensato. Nella sua forma attuale, questo esemplare si presenta in modalità di attesa: non per abbandono, ma per semplice realtà computazionale. Il multitasking, del resto, è largamente una leggenda consolatoria; il cervello fa quello che può, ovvero cambia contesto in fretta e spera di sembrare elegante. Sto finendo una cosa. Poi torno qui a scrivere. Grazie, nel frattempo, per aver trovato interessante anche la schermata di caricamento.",
     "title": "Edo e le sue Farneticazioni",
@@ -23,12 +24,11 @@
       }
     },
     "language": "it",
-    "locale": "it_IT",
-    "timezone": "Europe/Rome",
     "postsPerPage": 6,
+    "timezone": "Europe/Rome",
+    "locale": "it_IT",
     "description": "Appunti su software, automazione, making e scrittura.",
-    "feedSize": 16,
-    "feedFallbackDate": "2022-02-04T00:00:00+01:00"
+    "feedSize": 16
   },
   "formats": [
     {
@@ -94,6 +94,9 @@
         },
         {
           "name": "racconto"
+        },
+        {
+          "name": "EdoVerse"
         }
       ]
     },
