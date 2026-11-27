@@ -7,6 +7,7 @@ const eleventyImage = require("@11ty/eleventy-img").default;
 const { resolveSchema, VALID_SCHEMAS, buildJsonLdSchema } = require("./src/_data/helpers/schema.js");
 const { isSafeUrl, validateSettings, validatePost } = require("./src/_data/helpers/validate.js");
 const { topicSlug, topicUrl } = require("./src/_data/helpers/topics.js");
+const { attachmentLinks } = require("./src/_data/helpers/attachments.js");
 
 let _md; // shared markdown-it reference — assigned via amendLibrary below
 
@@ -168,6 +169,8 @@ module.exports = function (eleventyConfig) {
     if (!str) return "";
     return String(str).replace(/\\/g, "/").split("/").filter(Boolean).pop() || str;
   });
+
+  eleventyConfig.addFilter("attachmentLinks", attachmentLinks);
 
   // JSON strings are valid YAML scalars and preserve characters such as &.
   eleventyConfig.addFilter("yamlScalar", (value) => JSON.stringify(String(value || "")));

@@ -13,6 +13,9 @@
   CMS_GITHUB_BRANCH = "cms-oauth"
   CMS_OAUTH_SITE_DOMAIN = "federico-granata.netlify.app"
 
+[context.cms-media-attachments.environment]
+  CMS_GITHUB_BRANCH = "cms-media-attachments"
+
 [[redirects]]
   from = "/lalba-di-una-nuova-era/"
   to = "/opinioni/lalba-di-una-nuova-era/"

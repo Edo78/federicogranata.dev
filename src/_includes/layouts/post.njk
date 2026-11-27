@@ -67,12 +67,17 @@ layout: layouts/base.njk
     {{ content | safe }}
   </div>
 
-  {% if attachment %}
-  <div class="mt-8 pt-6 border-t border-border">
-    <a href="{{ attachment | safeUrl }}" download class="button-link inline-flex items-center gap-2">
-      Scarica {{ attachment | basename }}
-    </a>
-  </div>
+  {% set downloads = attachments | attachmentLinks(attachment) %}
+  {% if downloads | length %}
+  <section class="mt-10 pt-6 border-t border-border" aria-labelledby="attachments-title">
+    <p class="eyebrow">Da scaricare</p>
+    <h2 id="attachments-title" class="section-title mt-2">Allegati</h2>
+    <ul class="mt-5 flex flex-wrap gap-3">
+      {% for download in downloads %}
+      <li><a href="{{ download.file | safeUrl }}" download class="button-link max-w-full break-all text-left">{{ download.label }}</a></li>
+      {% endfor %}
+    </ul>
+  </section>
   {% endif %}
 
   {% if related | length %}

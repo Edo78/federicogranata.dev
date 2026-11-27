@@ -79,6 +79,10 @@ test("post format, status and category topics are validated", () => {
 
   assert.doesNotThrow(() => validatePost(basePost, categorySlugs, formatValues, categoryTopics));
   assert.doesNotThrow(() => validatePost({ ...basePost, status: "current" }, categorySlugs, formatValues, categoryTopics));
+  assert.doesNotThrow(() => validatePost({ ...basePost, attachments: [{ file: "/files/story.pdf", label: "PDF" }, { file: "/files/story.epub" }], attachment: "/files/legacy.pdf" }, categorySlugs, formatValues, categoryTopics));
+  assert.throws(() => validatePost({ ...basePost, attachments: "story.pdf" }, categorySlugs, formatValues, categoryTopics), /attachments must be an array/);
+  assert.throws(() => validatePost({ ...basePost, attachments: [{ file: "javascript:alert(1)" }] }, categorySlugs, formatValues, categoryTopics), /attachment URL/);
+  assert.throws(() => validatePost({ ...basePost, attachments: [{ file: "/files/story.pdf", label: 42 }] }, categorySlugs, formatValues, categoryTopics), /attachment label/);
   assert.throws(
     () => validatePost({ ...basePost, format: "unknown" }, categorySlugs, formatValues, categoryTopics),
     /unknown format/

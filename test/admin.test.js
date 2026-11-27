@@ -6,6 +6,19 @@ const vm = require("node:vm");
 
 const taxonomy = { tecnologia: ["obsidian", "koreader"], narrativa: ["scrittura", "romanzo"] };
 
+class NativeImageControl {
+  constructor(props) {
+    this.props = props;
+    this.controlID = "native-image-control";
+    this.renderImages = () => Array.isArray(this.props.value)
+      ? { type: "multiple-images", props: { getAsset: this.props.getAsset, value: this.props.value } }
+      : { type: "image-wrapper", props: { children: { type: "image", props: { getAsset: this.props.getAsset, value: this.props.value } } } };
+  }
+  getValidateValue() {
+    return this.props.value.split("/").at(-1);
+  }
+}
+
 function loadEditor(fetchOptions = {}) {
   const widgets = {};
   const events = {};
@@ -36,7 +49,11 @@ function loadEditor(fetchOptions = {}) {
   }]));
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, "../src/public/js/admin.js"), "utf8"), {
     createClass: definition => definition,
-    h: (type, props, ...children) => ({ type, props, children }),
+    h: (type, props, ...children) => ({
+      type,
+      props: { ...props, ...(children.length ? { children: children.length === 1 ? children[0] : children } : {}) },
+      children,
+    }),
     fetch: async () => ({ ok: fetchOptions.ok !== false, json: async () => taxonomy }),
     setTimeout,
     requestAnimationFrame: callback => frames.push(callback),
@@ -47,7 +64,7 @@ function loadEditor(fetchOptions = {}) {
     },
     CMS: {
       getBackend: name => backends[name],
-      getWidget: () => ({ control() {}, preview() {}, schema: {} }),
+      getWidget: name => ({ control: name === "image" ? NativeImageControl : () => null, preview() {}, schema: {} }),
       registerWidget: (name, control) => { widgets[name] = control; },
       registerEventListener: event => { events[event.name] = event.handler; },
       registerPreviewStyle() {},
@@ -121,6 +138,44 @@ function control(definition, props) {
   if (instance.getInitialState) instance.state = instance.getInitialState();
   return instance;
 }
+
+test("image controls resolve draft assets without rewriting public URLs or native upload identity", () => {
+  const { widgets } = loadEditor();
+  const calls = [];
+  const field = new Map([["public_folder", "/img"]]);
+  const getAsset = (value, selectedField) => { calls.push({ value, selectedField }); return "blob:draft-cover"; };
+  const image = new widgets.image({ value: "/img/cover.png", field, getAsset });
+  const getter = image.renderImages().props.children.props.getAsset;
+  assert.equal(getter("/img/cover.png"), "blob:draft-cover");
+  assert.equal(calls[0].value, "cover.png");
+  assert.equal(calls[0].selectedField, field);
+  assert.equal(image.props.value, "/img/cover.png");
+  assert.equal(image.controlID, "native-image-control");
+  assert.equal(image.getValidateValue(), "cover.png");
+  getter("/img/cover%20name.png");
+  assert.equal(calls.at(-1).value, "cover name.png");
+  getter("https://example.com/cover.png");
+  assert.equal(calls.at(-1).value, "https://example.com/cover.png");
+  assert.equal(image.renderImages().props.children.props.getAsset, getter);
+  image.props.getAsset = () => "blob:new-cover";
+  assert.notEqual(image.renderImages().props.children.props.getAsset, getter);
+});
+
+test("the post preview resolves an unsaved cover through the media folder", () => {
+  const { previews } = loadEditor();
+  let requested;
+  const preview = control(previews.posts, {
+    entry: { getIn: keys => ({ cover: "/img/new-cover.png" })[keys[1]] },
+    getAsset: value => { requested = value; return { toString: () => "blob:preview-cover" }; },
+    widgetFor: () => "Body",
+  });
+  const images = node => !node || typeof node !== "object" ? [] : [
+    ...(node.type === "img" ? [node] : []),
+    ...node.children.flat(Infinity).flatMap(images),
+  ];
+  assert.equal(images(preview.render())[0].props.src, "blob:preview-cover");
+  assert.equal(requested, "new-cover.png");
+});
 
 test("topics follow the category draft immediately instead of the stale entry prop", async () => {
   const { widgets } = loadEditor();

@@ -78,6 +78,15 @@ test("generated CMS options remain valid quoted YAML scalars", () => {
   assert.match(adminConfig, /\{ label: "Opinione", value: "opinione" \}/);
 });
 
+test("attachment media folders are rooted under assets instead of editorial collections", () => {
+  const config = fs.readFileSync(path.join(OUTPUT_DIR, "admin", "config.yml"), "utf8");
+  assert.match(config, /^media_folder: "src\/assets\/images"/m);
+  assert.match(config, /widget: "file"\s+media_folder: "\/src\/assets\/files"\s+public_folder: "\/files"/);
+  const fieldFolders = [...config.matchAll(/^[ \t]+media_folder: "([^"]+)"/gm)].map(match => match[1]);
+  assert.ok(fieldFolders.length > 0);
+  assert.ok(fieldFolders.every(folder => folder.startsWith("/src/assets/")));
+});
+
 test("public pages have one h1 and the favicon is emitted", () => {
   const htmlFiles = walk(OUTPUT_DIR).filter((file) => file.endsWith(".html") && !file.includes(`${path.sep}admin${path.sep}`));
   for (const file of htmlFiles) {

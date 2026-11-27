@@ -39,3 +39,16 @@ test("explicit CMS branch settings take precedence over the deploy branch", () =
   assert.equal(env.CMS_GITHUB_BRANCH, "cms-oauth");
   assert.equal(env.ELEVENTY_ENV, "development");
 });
+
+test("media Deploy Previews keep writes and navigation on the test branch", () => {
+  const env = readEnvironment({
+    CONTEXT: "deploy-preview",
+    BRANCH: "pull/6/head",
+    CMS_GITHUB_BRANCH: "cms-media-attachments",
+    URL: "https://blog.federicogranata.dev",
+    DEPLOY_PRIME_URL: "https://deploy-preview-6--federico-granata.netlify.app",
+  });
+  assert.equal(env.CMS_GITHUB_BRANCH, "cms-media-attachments");
+  assert.equal(env.CMS_SITE_URL, "https://deploy-preview-6--federico-granata.netlify.app");
+  assert.equal(env.CMS_OAUTH_SITE_DOMAIN, "federico-granata.netlify.app");
+});

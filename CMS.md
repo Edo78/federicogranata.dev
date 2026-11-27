@@ -21,6 +21,10 @@ branch e il CMS usa il dominio principale come collegamento di ritorno al sito.
 Il branch di produzione rimane `main`. Il collaudo usa un vero branch deploy,
 aggiornato dai commit, non un deploy manuale con alias.
 
+Le PR possono essere collaudate sul relativo Deploy Preview Netlify. Per il
+branch `cms-media-attachments`, il contesto omonimo fissa esplicitamente il branch
+su cui il CMS salva: le prove su quell'URL restano separate dalla produzione.
+
 ## Provider OAuth
 
 Creare una **OAuth App** in GitHub, in Settings → Developer settings → OAuth Apps:
@@ -54,6 +58,28 @@ Il contesto `cms-oauth` in `netlify.toml` fissa esplicitamente il branch di scri
 del CMS. La configurazione locale mantiene `local_backend: true` soltanto in
 sviluppo: il proxy locale salva su disco e non verifica l'autenticazione OAuth.
 
+## Copertine, allegati e bozze
+
+La cover può essere caricata e vista nell'anteprima prima del salvataggio: il
+pannello risolve il file temporaneo del CMS, conservando nei contenuti il normale
+URL pubblico `/img/...`.
+
+In **Allegati** aggiungere un elemento per ciascun file, ad esempio PDF ed EPUB
+dello stesso racconto. L'etichetta è facoltativa; se manca viene usato il nome del
+file. I file sono salvati in `src/assets/files` e pubblicati sotto `/files/`.
+Il campo File usa il percorso `/src/assets/files` dalla radice del repository:
+un percorso relativo verrebbe interpretato rispetto alla cartella dei post,
+facendo comparire anche i file editoriali nella libreria degli allegati.
+Il vecchio campo singolo `attachment` resta leggibile e viene preservato quando
+si modifica un articolo precedente.
+
+**Repository del progetto** è un link facoltativo al codice descritto dal post,
+non il repository che ospita il blog. Può essere lasciato vuoto nella narrativa.
+
+Il comando Publish del CMS salva una versione nel repository. Se il campo
+**Pubblicato** è disattivato, l'articolo resta una bozza esclusa dalle pagine,
+dagli archivi e dai feed del sito.
+
 ## Criteri di collaudo
 
 ### Stato editoriale
@@ -77,6 +103,7 @@ un valore precedentemente salvato senza dover riaprire l'articolo.
 5. Verificare il contenuto pubblicato sull'URL temporaneo.
 6. Eseguire logout e nuovo login; eliminare i contenuti di prova tramite il CMS.
 
-Le prove editoriali vanno eseguite su `cms-oauth`; il pannello di produzione salva
-invece in `main`. L'app OAuth e il provider Netlify sono condivisi: non serve
+Le prove editoriali vanno eseguite su un Deploy Preview o su `cms-oauth`; il
+pannello di produzione salva invece in `main`. L'app OAuth e il provider Netlify
+sono condivisi: non serve
 ricrearli quando si promuove il codice in produzione.
