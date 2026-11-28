@@ -77,5 +77,13 @@
   </footer>
 
   <script src="/js/site.js" defer></script>
+
+  {% if env.GOATCOUNTER_ENABLED %}
+  <script
+    data-goatcounter="https://stats.federicogranata.dev/count"
+    src="/js/goatcounter.js"
+    async>
+  </script>
+  {% endif %}
 </body>
 </html>

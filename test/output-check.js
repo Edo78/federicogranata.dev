@@ -264,3 +264,38 @@ test("published articles are reachable exactly once in their respective archives
     }
   }
 });
+
+test("GoatCounter is enabled only on public production pages", () => {
+  const htmlFiles = walk(OUTPUT_DIR)
+    .filter(file => file.endsWith(".html"));
+
+  for (const file of htmlFiles) {
+    const html = fs.readFileSync(file, "utf8");
+    const isAdmin = file.includes(
+      `${path.sep}admin${path.sep}`
+    );
+
+    const enabled =
+      process.env.CONTEXT === "production" && !isAdmin;
+
+    const endpoints = html.match(
+      /data-goatcounter="https:\/\/stats\.federicogranata\.dev\/count"/g
+    ) || [];
+
+    const scripts = html.match(
+      /src="\/js\/goatcounter\.js"/g
+    ) || [];
+
+    assert.equal(
+      endpoints.length,
+      enabled ? 1 : 0,
+      `${file}: unexpected GoatCounter endpoint count`
+    );
+
+    assert.equal(
+      scripts.length,
+      enabled ? 1 : 0,
+      `${file}: unexpected GoatCounter script count`
+    );
+  }
+});
