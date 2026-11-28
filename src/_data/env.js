@@ -5,4 +5,5 @@ module.exports = {
   CMS_GITHUB_AUTH_SCOPE: process.env.CMS_GITHUB_AUTH_SCOPE || 'public_repo',
   CMS_OAUTH_SITE_DOMAIN: process.env.CMS_OAUTH_SITE_DOMAIN || 'federico-granata.netlify.app',
   CMS_SITE_URL: (process.env.CONTEXT === 'production' ? process.env.URL : '') || process.env.DEPLOY_PRIME_URL || '',
+  GOATCOUNTER_ENABLED: process.env.CONTEXT === 'production',
 };

@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+reviews:
+  path_filters:
+    - "!src/public/js/goatcounter.js"
+    - "!src/public/js/goatcounter.LICENSE.txt"
+
+  path_instructions:
+    - path: "**/*"
+      instructions: |
+        Vendored third-party code must remain identical to its
+        official upstream release.
+
+        Never modify, refactor, reformat or patch vendored code.
+
+        Report defects in third-party code as upstream issues
+        instead of proposing local fixes.
+
+        Never update integrity checksums to accommodate local
+        modifications to vendored code.
+
+        Vendored dependencies may only be updated by replacing
+        them with an official upstream release and verifying
+        its published checksum.
