@@ -1,5 +1,6 @@
 {
   "version": 5,
   "url": "https://gc.zgo.at/count.v5.js",
-  "sha384": "atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"
+  "sha384": "XuAri+NpJtBJ9wgvgjVxK/cI9CsjWE/mXW/940n/Oa0CMUR71t8xAAD8pVmqwOl9",
+  "localPatch": "Guard localStorage access when counting or toggling the opt-out flag; skip tracking when access is denied."
 }

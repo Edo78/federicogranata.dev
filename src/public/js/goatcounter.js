@@ -106,6 +106,8 @@
 			f()
 	}
 
+	var toggle_failed = false
+
 	// Filter some requests that we (probably) don't want to count.
 	window.goatcounter.filter = function() {
 		if ('visibilityState' in document && document.visibilityState === 'prerender')
@@ -116,8 +118,18 @@
 			return 'localhost'
 		if (!goatcounter.allow_local && location.protocol === 'file:')
 			return 'localfile'
-		if (localStorage && localStorage.getItem('skipgc') === 't')
-			return 'disabled with #toggle-goatcounter'
+		if (toggle_failed)
+			return 'localStorage unavailable'
+		try {
+			var storage = localStorage
+			if (!storage)
+				return 'localStorage unavailable'
+			if (storage.getItem('skipgc') === 't')
+				return 'disabled with #toggle-goatcounter'
+		}
+		catch (err) {
+			return 'localStorage unavailable'
+		}
 		return false
 	}
 
@@ -234,14 +246,22 @@
 
 	// Make it easy to skip your own views.
 	if (location.hash === '#toggle-goatcounter') {
-		if (localStorage.getItem('skipgc') === 't') {
-			localStorage.removeItem('skipgc', 't')
+		try {
+			var storage = localStorage
+			var was_disabled = storage.getItem('skipgc') === 't'
+			if (was_disabled)
+				storage.removeItem('skipgc', 't')
+			else
+				storage.setItem('skipgc', 't')
+		}
+		catch (err) {
+			toggle_failed = true
+			return warn('not counting because of: localStorage unavailable')
+		}
+		if (was_disabled)
 			alert('GoatCounter tracking is now ENABLED in this browser.')
-		}
-		else {
-			localStorage.setItem('skipgc', 't')
+		else
 			alert('GoatCounter tracking is now DISABLED in this browser until ' + location + ' is loaded again.')
-		}
 	}
 
 	if (!goatcounter.no_onload)
